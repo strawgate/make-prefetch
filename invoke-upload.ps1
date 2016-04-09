@@ -21,6 +21,9 @@ add-type @"
 Add-Type -AssemblyName System.Web
 Add-Type -AssemblyName System.Net.http
 
+
+#Credit for this function goes to: Mario Majcica
+# http://blog.majcica.com/2016/01/13/powershell-tips-and-tricks-multipartform-data-requests/
 function Invoke-bffileimport
 {
     [CmdletBinding()]
