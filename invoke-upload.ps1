@@ -1,7 +1,25 @@
 param (
-    [string] $inFile,
-    [string] $Server
+    [string][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()] $File,
+    [string][parameter(Mandatory = $true)][ValidateNotNullOrEmpty()] $Server
 )
+
+#Add Certification Exception for connecting to the BigFix Server
+add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+
+#Import net assemblies for HTTP Client
+Add-Type -AssemblyName System.Web
+Add-Type -AssemblyName System.Net.http
 
 function Invoke-bffileimport
 {
@@ -101,21 +119,31 @@ function Invoke-bffileimport
     }
     END { }
 }
+#Verify File Exists
+if (!(test-path $File)) { throw "Invalid file path provided" }
+$NewFile = get-item $File
 
+#Get Credentials for upload
 $Credentials = Get-Credential
 
-$File = get-item $inFile
+#Perform Upload
+$Result = Invoke-BFFileImport -Uri "https://$($Server):52311/api/upload" -InFile $NewFile -Credential $Credentials
 
-$Result = Invoke-BFFileImport -Uri "https://$($Server):52311/api/upload" -InFile $File -Credential $Credentials
+if (!(select-xml -content ($Result) -xpath "/BESAPI/FileUpload")) {throw "Unknown response from server" }
 
+#Prepare Prefetch
 $URL = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/URL").node.InnerText
-$Name = $File.Name
-$SHA1 = (Get-FileHash $File -Algorithm SHA1).hash
-$SHA256 = (Get-FileHash $File -Algorithm SHA256).hash
-$Size = $File.length
+$Name = $NewFile.Name
+$SHA1 = (Get-FileHash $NewFile -Algorithm SHA1).hash
+$SHA256 = (Get-FileHash $NewFile -Algorithm SHA256).hash
+$Size = $NewFile.length
 
-write-output "prefetch $Name sha1:$SHA1 size:$Size $($UploadInfo.URL) sha256:$SHA256"
+#Print Prefetch
+write-output "prefetch $Name sha1:$SHA1 size:$Size $URL sha256:$SHA256"
 
-write-output "move ""__Download/$name"" ""__Download/$Name.bftemp"
+#Provide extraction commands if the file is an archive
+if ($file.Extension -like "bftemp") {
+    write-output "move ""__Download/$Name"" ""__Download/$Name.bftemp"
 
-write-output "extract ""$Name.bftemp"" ""__Download/"
+    write-output "extract ""$Name.bftemp"" ""__Download/"
+}
