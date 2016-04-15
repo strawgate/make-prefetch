@@ -21,7 +21,7 @@ add-type @"
 Add-Type -AssemblyName System.Web
 Add-Type -AssemblyName System.Net.http
 
-
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 #Credit for this function goes to: Mario Majcica
 # http://blog.majcica.com/2016/01/13/powershell-tips-and-tricks-multipartform-data-requests/
 function Invoke-bffileimport
@@ -142,11 +142,15 @@ $SHA256 = (Get-FileHash $NewFile -Algorithm SHA256).hash
 $Size = $NewFile.length
 
 #Print Prefetch
-write-output "prefetch $Name sha1:$SHA1 size:$Size $URL sha256:$SHA256"
+$Output
+
+$Output = "prefetch $SHA1 sha1:$SHA1 size:$Size $URL sha256:$SHA256 `n"
 
 #Provide extraction commands if the file is an archive
-if ($file.Extension -like "bftemp") {
-    write-output "move ""__Download/$Name"" ""__Download/$Name.bftemp"
+if ($NewFile.Extension -like "*bftemp*") {
+    $Output += "move ""__Download\$SHA1"" ""__Download\$Name `n"
 
-    write-output "extract ""$Name.bftemp"" ""__Download/"
+    $Output += "extract ""$Name"" `n"
 }
+
+write-output $Output
