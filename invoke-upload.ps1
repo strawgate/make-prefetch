@@ -154,3 +154,5 @@ if ($NewFile.Extension -like "*bftemp*") {
 }
 
 write-output $Output
+
+$output | clip
