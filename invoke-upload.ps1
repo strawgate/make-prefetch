@@ -91,6 +91,7 @@ function Invoke-bffileimport
  
         try
         {
+
 			$response = $httpClient.PostAsync($Uri, $content).Result
  
 			if (!$response.IsSuccessStatusCode)
@@ -132,7 +133,11 @@ $Credentials = Get-Credential
 #Perform Upload
 $Result = Invoke-BFFileImport -Uri "https://$($Server):52311/api/upload" -InFile $NewFile -Credential $Credentials
 
+if ($Result -eq $null) { write-host "No response from server?!" }
+
 if (!(select-xml -content ($Result) -xpath "/BESAPI/FileUpload")) {throw "Unknown response from server" }
+
+
 
 #Prepare Prefetch
 $URL = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/URL").node.InnerText

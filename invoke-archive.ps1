@@ -7,8 +7,10 @@ function Invoke-Archive {
         [IO.DirectoryInfo] $Folder
     )
     .\BFArchive.exe -a "$($Folder.FullName)" "$($Folder.FullName).bftemp"
+
+    return "$($Folder.FullName).bftemp"
 }
 
 $Folder = get-item $InFolder
 
-Invoke-Archive -Folder $Folder
+Invoke-Archive -Folder $Folder | Clip

@@ -32,3 +32,5 @@ $Prefetch = "prefetch $name sha1:$SHA1 size:$Size $URL sha256:$SHA256"
 
 #Output
 write-output $Prefetch
+
+$prefetch | Clip
