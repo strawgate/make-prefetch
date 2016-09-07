@@ -153,7 +153,7 @@ $Output = "prefetch $SHA1 sha1:$SHA1 size:$Size $URL sha256:$SHA256 `n"
 
 #Provide extraction commands if the file is an archive
 if ($NewFile.Extension -like "*bftemp*") {
-    $Output += "move ""__Download\$SHA1"" ""__Download\$Name `n"
+    $Output += "move ""__Download\$SHA1"" ""__Download\$Name"" `n"
 
     $Output += "extract ""$Name"" `n"
 }
