@@ -24,6 +24,7 @@ Add-Type -AssemblyName System.Net.http
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 #Credit for this function goes to: Mario Majcica
 # http://blog.majcica.com/2016/01/13/powershell-tips-and-tricks-multipartform-data-requests/
+
 function Invoke-bffileimport
 {
     [CmdletBinding()]
@@ -74,7 +75,7 @@ function Invoke-bffileimport
  
         $httpClient = New-Object System.Net.Http.Httpclient $httpClientHandler
  
-    
+        $httpClient.Timeout = New-TimeSpan -Minutes 10
         #$httpClient.DefaultRequestHeaders.Authorization = (get-bfconnectheaders)
         $packageFileStream = New-Object System.IO.FileStream @($InFile, [System.IO.FileMode]::Open)
         
@@ -133,7 +134,7 @@ $Credentials = Get-Credential
 #Perform Upload
 $Result = Invoke-BFFileImport -Uri "https://$($Server):52311/api/upload" -InFile $NewFile -Credential $Credentials
 
-if ($Result -eq $null) { write-host "No response from server?!" }
+if ($Result -eq $null) { write-host "No response from server?!"; exit 0 }
 
 if (!(select-xml -content ($Result) -xpath "/BESAPI/FileUpload")) {throw "Unknown response from server" }
 
@@ -142,9 +143,9 @@ if (!(select-xml -content ($Result) -xpath "/BESAPI/FileUpload")) {throw "Unknow
 #Prepare Prefetch
 $URL = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/URL").node.InnerText
 $Name = $NewFile.Name
-$SHA1 = (Get-FileHash $NewFile -Algorithm SHA1).hash
-$SHA256 = (Get-FileHash $NewFile -Algorithm SHA256).hash
-$Size = $NewFile.length
+$SHA1 = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/SHA1").node.InnerText
+$SHA256 = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/SHA256").node.InnerText
+$Size = (select-xml -content ($Result) -xpath "/BESAPI/FileUpload/Size").node.InnerText
 
 #Print Prefetch
 $Output
