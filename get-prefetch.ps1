@@ -19,7 +19,7 @@ if ($url.OriginalString -like "*://*") {
 else {
     $File = get-item $url
     $URL = "http://REPLACEME"
-    $Name = $File.Name
+    if(!$Name) {$Name = $File.Name}
 }
 
 #Calculate Hash and File Size
@@ -28,7 +28,7 @@ $SHA256 = (Get-FileHash $File -Algorithm SHA256).hash
 $Size = $File.length
 
 #Combine
-$Prefetch = "prefetch $name sha1:$SHA1 size:$Size $URL sha256:$SHA256"
+$Prefetch = "prefetch $Name sha1:$SHA1 size:$Size $URL sha256:$SHA256"
 
 #Output
 write-output $Prefetch
