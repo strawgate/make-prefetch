@@ -1,4 +1,4 @@
-make-prefetch
+Make Prefetch
 ===
 
 This is a tool to generate [prefetch](https://developer.bigfix.com/action-script/reference/download/prefetch.html) statements for downloads in BigFix ActionScript.
@@ -9,7 +9,7 @@ Suppose you want to create a prefetch statement to download [this picture of Hod
 
 To download it as `hodor.jpg`, you can use the `-name` argument:
 
-    & .\make-prefetch -name hodor.jpg -url http://i.imgur.com/YAUeUOG.jpg
+    & .\get-prefetch -name hodor.jpg -url http://i.imgur.com/YAUeUOG.jpg
 
 This will output the prefetch statement as `hodor.jpg` on the client.
 
@@ -21,9 +21,9 @@ Suppose you have already downloaded
 [this picture of Hodor](http://i.imgur.com/YAUeUOG.jpg) and you want to create a
 prefetch statement for it.
 
-To do this, run `& .\make-prefetch` on the file to generate a prefetch statement:
+To do this, run `& .\get-prefetch` on the file to generate a prefetch statement:
 
-    & .\make-prefetch hodor.jpg
+    & .\get-prefetch hodor.jpg
 
 This will output a prefetch statement with `http://REPLACEME` as the URL:
 

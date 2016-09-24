@@ -10,7 +10,7 @@ param (
 
 $File = $null
 #Passed URL is a URL
-if ($url -like "*://*") {
+if ($url.OriginalString -like "*://*") {
     $TempStore = [System.IO.Path]::GetTempFileName()
     invoke-webrequest $URL -outfile $TempStore
     $File = get-item $TempStore
