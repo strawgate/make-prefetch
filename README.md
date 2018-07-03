@@ -3,6 +3,21 @@ Make Prefetch
 
 This is a tool to generate [prefetch](https://developer.bigfix.com/action-script/reference/download/prefetch.html) statements for downloads in BigFix ActionScript.
 
+## Parameters
+
+Generate a prefetch for a local file:
+
+Get-Prefetch.ps1
+   -Path <String>
+   -Name <String>
+
+Generate a prefetch for a file from a web server (http://)
+
+Get-Prefetch.ps1
+   -URL <String>
+   -Name <String>
+
+
 ## Using a URL argument
 
 Suppose you want to create a prefetch statement to download [this picture of Hodor](http://i.imgur.com/YAUeUOG.jpg).
@@ -23,7 +38,7 @@ prefetch statement for it.
 
 To do this, run `& .\get-prefetch` on the file to generate a prefetch statement:
 
-    & .\get-prefetch hodor.jpg
+    & .\get-prefetch -Path hodor.jpg -name hodor.jpg
 
 This will output a prefetch statement with `http://REPLACEME` as the URL:
 

@@ -1,26 +1,34 @@
 param (
-  [uri] $URL,
-  [string] $Name,
-  [string] $Algorithm,
-  [switch] $Help
+    [Parameter(ParameterSetName='Local', mandatory=$true)]
+    [ValidateScript({(Test-Path $_) -and -not (get-item $_).PSIsContainer})]
+    [string] $Path,
+    [Parameter(ParameterSetName='Network', mandatory=$true)]
+    [uri] $URL,
+    [Parameter(ParameterSetName='Local', mandatory=$true)]
+    [Parameter(ParameterSetName='Network', mandatory=$true)]
+    [string] $Name
 )
 
+switch ($PsCmdlet.ParameterSetName) 
+{ 
+    "Local"  {
+        Write-Host $d; 
 
-#prefetch 29096506ECF09502659AE936B46A31710499E8E2 sha1:29096506ECF09502659AE936B46A31710499E8E2 size:47843632 http://downloadplugins.citrix.com/MANUAL_BES_CACHING_REQUIRED/Citrix Receiver.exe sha256:173A8DB26E162A4FC36316F1B134C2728DC1A873B97670211707E8C35317E372
+        $URL = "http://REPLACEME"
+        
+        break
+    } 
 
-$File = $null
-#Passed URL is a URL
-if ($url.OriginalString -like "*://*") {
-    $TempStore = [System.IO.Path]::GetTempFileName()
-    invoke-webrequest $URL -outfile $TempStore
-    $File = get-item $TempStore
+    "Network"  {
+        $Path = [System.IO.Path]::GetTempFileName()
+
+        invoke-webrequest $URL -outfile $Path
+
+        $File = get-item $Path
+    } 
 } 
-#Passed URL is a file
-else {
-    $File = get-item $url
-    $URL = "http://REPLACEME"
-    if(!$Name) {$Name = $File.Name}
-}
+
+$File = get-item $Path
 
 #Calculate Hash and File Size
 $SHA1 = (Get-FileHash $File -Algorithm SHA1).hash
